@@ -4,7 +4,7 @@ source("gl.PCA.classes.R")
 
 gl.partial.pca.FBM <- function(genObj, 
                                k = 10, 
-                               scaling = NULL, 
+                               scaling = bigsnpr::snp_scaleBinom(), 
                                ind.row = F, 
                                ind.col = F, 
                                block.size = NULL
@@ -23,11 +23,16 @@ gl.partial.pca.FBM <- function(genObj,
   
   fbm <- bigstatsr::as_FBM(as.matrix(genObj)) 
   
+  col_col <- rep(1:length(genObj$loc.names))
+  row_col <- as.numeric(genObj$ind.names)
   
-  row_col <- genObj$ind.names
-  col_col <- genObj$loc.names
+  svdRun <- bigstatsr::big_SVD(X=fbm, 
+                               k=k, 
+                               ind.row = row_col, 
+                               ind.col = col_col, 
+                               block.size = bigstatsr::block_size(nrow(fbm))
+  )
   
-  svdRun <- bigstatsr::big_SVD(X=fbm)
   svdRun$type <- "partialSVD"
   rownames(svdRun$u) <- genObj$ind.names
   rownames(svdRun$v) <- genObj$loc.names
@@ -38,6 +43,7 @@ gl.partial.pca.FBM <- function(genObj,
   return(newSVD)
   
 }
+
 
 #example : gl.partial.pca.FBM(possums.gl)
 
